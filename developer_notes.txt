@@ -1,0 +1,4 @@
+make sure to run
+
+jlpm run build
+jupyter labextension develop .
