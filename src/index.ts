@@ -3,7 +3,6 @@ import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin,
-  JupyterLab,
 } from '@jupyterlab/application';
 
 import { ToolbarButton } from '@jupyterlab/apputils';
@@ -14,10 +13,9 @@ import {
   NotebookActions,
   NotebookPanel,
   INotebookModel,
-  Notebook,
 } from '@jupyterlab/notebook';
 
-import { CodeCell, ICellModel, CodeCellModel, ICodeCellModel } from '@jupyterlab/cells';
+//import { CodeCell, ICellModel, CodeCellModel, ICodeCellModel } from '@jupyterlab/cells';
 
 /**
  * The plugin registration information.
@@ -58,10 +56,6 @@ export class ButtonExtension
       toolbar.style.backgroundColor = "white";
       toolbar.classList.add("col-toolbar");
       toolbar.id = "columnToolbar" + column;
-
-      var cellOptions = {
-
-      };
 
       var buttons = document.createElement('div');
       buttons.style.width = '100%';
