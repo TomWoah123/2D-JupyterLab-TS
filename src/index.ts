@@ -47,51 +47,12 @@ export class ButtonExtension
       NotebookActions.clearAllOutputs(panel.content);
     };
 
-    function resizeColumns(e: any) {
-      
-    }
-
-    function createColumnToolbar(column: number) {
-      var toolbar = document.createElement('div');
-      toolbar.style.backgroundColor = "white";
-      toolbar.classList.add("col-toolbar");
-      toolbar.id = "columnToolbar" + column;
-
-      var buttons = document.createElement('div');
-      buttons.style.width = '100%';
-      buttons.style.height = '35px';
-      buttons.style.border = '1.5px solid black';
-
-      var resize = document.createElement('div');
-      resize.classList.add('resizeMe');
-      resize.id = 'resizeCol' + column;
-      resize.style.width = '20px';
-      resize.style.height = '33px';
-      resize.style.float = 'right';
-      resize.style.backgroundColor = 'lightgrey';
-      resize.style.cursor = 'col-resize';
-      resize.addEventListener("mousedown", resizeColumns);
-
-      buttons.append(resize);
-
-      var addCell = document.createElement('button');
-      addCell.classList.add('btn');
-      addCell.classList.add('btn-default');
-      addCell.style.float = 'left';
-      addCell.innerHTML = '<i class = "fa fa-plus"></i>';
-      addCell.onclick = function() {
-        if (column == 0) {
-          
-        }
-      }
-
-      return toolbar;
-    }
-
     const addColumn = () => {
       var numColumns = document.getElementsByClassName("column").length;
+      // NOTE: currently assuming a column element exists already
       numColumns++;
-      document.getElementById("id-1349d5f6-4846-4247-a0a8-a0a0caabcbe8")!.style!.width = numColumns * 600 + "px";
+      (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = numColumns * 600 + "px";
+      // NOTE: uncaught type error for when getElementsByClassName returns NULL
       var insertAfter = numColumns;
       var selection = false;
 
@@ -141,25 +102,216 @@ export class ButtonExtension
 
     const addColumnButton = new ToolbarButton({
       className: 'add-col',
-      label: 'Add Column',
+      label: 'Add Col',
       onClick: addColumn,
       tooltip: 'Adds a column to the notebook',
     });
 
     const removeColumnButton = new ToolbarButton({
       className: 'add-col',
-      label: 'Remove Column',
+      label: 'Remove Col',
       onClick: clearOutput,
       tooltip: 'Removes a column to the notebook',
     });
 
+    const refreshColumnButton = new ToolbarButton({
+      className: 'ref-col',
+      label: '(R)',
+      onClick: update_styling,
+      tooltip: 'Refreshes 2D features of notebook',
+    });
+
     panel.toolbar.insertItem(10, 'addColumns', addColumnButton);
     panel.toolbar.insertItem(11, 'removeColumns', removeColumnButton);
+    panel.toolbar.insertItem(12, 'refreshCols', refreshColumnButton);
     return new DisposableDelegate(() => {
       addColumnButton.dispose();
       removeColumnButton.dispose();
+      refreshColumnButton.dispose();
     });
   }
+}
+
+// Global var in limbo (TODO: add to class)
+var nCols:number = 1; // default to 1
+function initialize () {
+  // //set intial run indexes
+  // var cells = Jupyter.notebook.get_cells();
+  // var ncells = Jupyter.notebook.ncells();
+
+  // for (var i=0; i<ncells; i++){
+  //       var cell = cells[i];
+  //       var index = Jupyter.notebook.find_cell_index(cell);
+  //       cell.metadata.index = index;
+      
+  //       var box = document.getElementsByClassName("repos")[i]; 
+  //       if(typeof box !== 'undefined'){
+  //           $(box)[0].innerHTML = "";
+  //           $(box).append(index + 1);
+  //       }
+        
+  // }
+  // // draw columns
+  // if(!Jupyter.notebook.metadata.columns || Jupyter.notebook.metadata.columns === null){
+  //     Jupyter.notebook.metadata.columns = 1;
+  // }
+  // nCols = Jupyter.notebook.metadata.columns;
+  // update_styling();
+  console.log("Initialization");
+  update_styling();
+}
+function update_styling() {
+  console.log("Running update_styling()");
+  // Get the existing number of columns, and if there are none then set to 1 column
+  var columns: HTMLCollectionOf<Element> = document.getElementsByClassName("column");
+  nCols = columns.length;
+  if(nCols == 0) {
+    nCols = 2; // default to at least 2
+  }
+  // var newColumnWidth = 100/nCols - 2;
+  var newNbContainerWidth = 900*nCols + 50;
+  
+  // Tries to get jp-Notebook page element, which there should be one and only one of 
+  var notebook: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-Notebook");
+  if(notebook.length == 0) {
+    // Upon initial call, the jp-Notebook element likely has not loaded yet
+    console.log("Error: no jp-Notebook class elements found");
+    console.log(notebook);
+  } else {
+    // If jp-Notebook is found, add columns to it as appropriate
+    (notebook[0] as HTMLElement).style.width = newNbContainerWidth.toString() + "px";
+    // (notebook[0] as HTMLElement).style.backgroundColor = "#00ff00";
+    (notebook[0] as HTMLElement).style.overflowX = "visible";
+    (notebook[0] as HTMLElement).style.overflowY = "visible";
+    (notebook[0] as HTMLElement).style.height = 'inherit';
+
+    for(var c = 0; c < nCols; c++){
+      var newCol = document.createElement('div');   
+      newCol.classList.add("column");
+      newCol.id = "column" + (c+1).toString();
+      newCol.style.width = "500px";
+      // colWidths[c] = newColumnWidth.toString() + "%";
+      newCol.style.float = 'left';
+      newCol.style.margin = "10px";
+      newCol.style.height = "inherit";
+      newCol.style.minHeight = "30px";
+      newCol.style.backgroundColor = "rgba(255,255,255,0.5)";
+
+      notebook[0].appendChild(newCol);
+      var colIndex = newCol.id;
+      colIndex = colIndex.replace('column', '');
+      console.log("Made column");
+      console.log(newCol.toString())
+      var toolbar = createColumnToolbar(parseInt(colIndex));
+      newCol.prepend(toolbar);
+
+    }
+    // For now, assume one column, and we are completing initial page setup
+    // var jp_cells = (notebook[0] as HTMLElement).getElementsByClassName("");
+
+  }
+}
+
+function resizeColumns(e: any) {
+  console.log("resize not implemented");
+}
+
+function createColumnToolbar(column: number) {
+  var toolbar = document.createElement('div');
+  toolbar.style.backgroundColor = "white";
+  toolbar.classList.add("col-toolbar");
+  toolbar.id = "columnToolbar" + column;
+
+  var buttons = document.createElement('div');
+  buttons.style.width = '100%';
+  buttons.style.height = '35px';
+  buttons.style.border = '1.5px solid black';
+
+  var resize = document.createElement('div');
+  resize.classList.add('resizeMe');
+  resize.id = 'resizeCol' + column;
+  resize.style.width = '20px';
+  resize.style.height = '33px';
+  resize.style.float = 'right';
+  resize.style.backgroundColor = 'lightgrey';
+  resize.style.cursor = 'col-resize';
+  resize.addEventListener("mousedown", resizeColumns);
+
+  buttons.append(resize);
+
+  var addCell = document.createElement('button');
+  addCell.classList.add('btn');
+  addCell.classList.add('btn-default');
+  addCell.style.float = 'left';
+  // TODO: what is the purpose of classes fa and fa-plus?
+  addCell.innerHTML = '<i class = "fa fa-plus"></i>';
+  addCell.onclick = function() {
+    console.log("Clicked toolbar addCell");
+    if (column == 0) {
+      // Insert cell at index method?
+    }
+  };
+  buttons.append(addCell);
+
+  var moveColRight = document.createElement('button');
+  moveColRight.classList.add("btn");
+  moveColRight.classList.add("btn-default");
+  moveColRight.style.float = "right";
+  moveColRight.innerHTML = '<i class = "fa fa-arrow-right"></i>';
+  moveColRight.onclick = function(){
+    console.log("moveColRight btn clicked");
+  };
+  buttons.append(moveColRight);
+
+  var moveColLeft = document.createElement('button');
+  moveColLeft.classList.add("btn");
+  moveColLeft.classList.add("btn-default");
+  moveColLeft.style.float = "right";
+  
+  moveColLeft.innerHTML = '<i class = "fa fa-arrow-left"></i>';
+  moveColLeft.onclick = function(){
+    console.log("moveColLeft btn clicked");
+  }
+  buttons.append(moveColLeft);
+
+  var clickable = document.createElement('div');
+  clickable.classList.add("clickable-area")
+  clickable.id = "click" + column;
+  clickable.style.height = "35px";
+  clickable.addEventListener("click", selectColumn);
+  buttons.append(clickable);
+
+  
+  toolbar.append(buttons);
+  return toolbar;
+}
+
+function selectColumn(this: any){
+  var ele: any = this;
+  console.log(ele.toString())
+  var colIndex = ele.id.replace('click', '');
+  console.log("selected column " + colIndex)
+  var previousSelection = document.querySelector(".column.selected");
+  var column = document.getElementById("column" + colIndex);
+
+  if(previousSelection != null && previousSelection != column){
+    var previousSelection = document.querySelector(".column.selected"); 
+    if(previousSelection) {
+      (previousSelection as HTMLElement).style.border = "";
+      previousSelection.classList.remove('selected');
+    }
+  }
+
+  if(column) {
+    column.classList.toggle("selected");
+    if(column.classList.contains("selected")){
+        column.style.border = "5px solid #42a5f5";
+    }
+    else{
+        column.style.border = "";
+    }
+  }
+
 }
 
 /**
@@ -169,6 +321,7 @@ export class ButtonExtension
  */
 function activate(app: JupyterFrontEnd): void {
   app.docRegistry.addWidgetExtension('Notebook', new ButtonExtension());
+  initialize()
 }
 
 /**
