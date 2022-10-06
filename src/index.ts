@@ -10,7 +10,6 @@ import { ToolbarButton } from '@jupyterlab/apputils';
 import { DocumentRegistry } from '@jupyterlab/docregistry';
 
 import {
-  NotebookActions,
   NotebookPanel,
   INotebookModel,
 } from '@jupyterlab/notebook';
@@ -43,9 +42,34 @@ export class ButtonExtension
     panel: NotebookPanel,
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
-    const clearOutput = () => {
-      NotebookActions.clearAllOutputs(panel.content);
-    };
+
+    const removeColumn = () => {
+      var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      if(columns.length == 0) {
+        console.log("No columns found; can't delete");
+      }
+      else {
+        if(nCols != columns.length) {
+          console.log("Error: inconsistent num columns: " + nCols + " : " + columns.length);
+          nCols = columns.length;
+        }
+        var lastColumn = columns[nCols-1];
+        var selection = false;
+        // var deletedCol;
+        for(var c = 0; c<columns.length; c++){
+            if(columns[c].classList.contains("selected")) {
+                // deletedCol = c;
+                selection = true;
+                columns[c].remove();
+                break;
+            }
+        } 
+        if(!selection){
+            lastColumn.remove();
+        }
+        nCols--;
+      }
+    }
 
     const addColumn = () => {
       var numColumns = document.getElementsByClassName("column").length;
@@ -91,12 +115,21 @@ export class ButtonExtension
       newColumn.style.minHeight = "30px";
       newColumn.style.backgroundColor = "rgba(255, 255, 255, 1)";
 
-      var columnIndex = newColumn.id;
-      columnIndex = columnIndex.replace("column", "");
-      var toolbar = createColumnToolbar(parseInt(columnIndex));
-      newColumn.prepend(toolbar);
-
-
+      var notebook: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-Notebook");
+      if(notebook.length == 0) {
+        // Upon initial call, the jp-Notebook element likely has not loaded yet
+        console.log("Error: no jp-Notebook class elements found");
+        console.log(notebook);
+      } else {
+        // Add column on right side of notebook
+        // TODO: resize columns/notebook after add
+        notebook[0].appendChild(newColumn);
+        var columnIndex = newColumn.id;
+        columnIndex = columnIndex.replace("column", "");
+        // console.log("Adding col: " + parseInt(columnIndex));
+        var toolbar = createColumnToolbar(parseInt(columnIndex));
+        newColumn.prepend(toolbar);
+      }
       //var newCodeCell = new CodeCell();
     }
 
@@ -110,7 +143,7 @@ export class ButtonExtension
     const removeColumnButton = new ToolbarButton({
       className: 'add-col',
       label: 'Remove Col',
-      onClick: clearOutput,
+      onClick: removeColumn,
       tooltip: 'Removes a column to the notebook',
     });
 
@@ -185,29 +218,35 @@ function update_styling() {
     (notebook[0] as HTMLElement).style.overflowY = "visible";
     (notebook[0] as HTMLElement).style.height = 'inherit';
 
+    var new_columns = [];
     for(var c = 0; c < nCols; c++){
-      var newCol = document.createElement('div');   
-      newCol.classList.add("column");
-      newCol.id = "column" + (c+1).toString();
-      newCol.style.width = "500px";
+      new_columns[c] = document.createElement('div');   
+      new_columns[c].classList.add("column");
+      new_columns[c].id = "column" + (c+1).toString();
+      new_columns[c].style.width = "500px";
       // colWidths[c] = newColumnWidth.toString() + "%";
-      newCol.style.float = 'left';
-      newCol.style.margin = "10px";
-      newCol.style.height = "inherit";
-      newCol.style.minHeight = "30px";
-      newCol.style.backgroundColor = "rgba(255,255,255,0.5)";
+      new_columns[c].style.float = 'left';
+      new_columns[c].style.margin = "10px";
+      new_columns[c].style.height = "inherit";
+      new_columns[c].style.minHeight = "30px";
+      new_columns[c].style.backgroundColor = "rgba(255,255,255,0.5)";
 
-      notebook[0].appendChild(newCol);
-      var colIndex = newCol.id;
+      notebook[0].appendChild(new_columns[c]);
+      var colIndex = new_columns[c].id;
       colIndex = colIndex.replace('column', '');
       console.log("Made column");
-      console.log(newCol.toString())
+      console.log(new_columns[c].toString())
       var toolbar = createColumnToolbar(parseInt(colIndex));
-      newCol.prepend(toolbar);
+      new_columns[c].prepend(toolbar);
 
     }
     // For now, assume one column, and we are completing initial page setup
-    // var jp_cells = (notebook[0] as HTMLElement).getElementsByClassName("");
+    var jp_cells = (notebook[0] as HTMLElement).getElementsByClassName("jp-Cell");
+    console.log(jp_cells.length)
+    for(var i = 0; i < jp_cells.length; i++) {
+      new_columns[0].append(jp_cells[i]);
+      console.log("append attempted");
+    }
 
   }
 }
