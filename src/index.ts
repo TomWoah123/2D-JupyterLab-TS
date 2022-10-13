@@ -14,7 +14,15 @@ import {
   INotebookModel,
 } from '@jupyterlab/notebook';
 
-//import { CodeCell, ICellModel, CodeCellModel, ICodeCellModel } from '@jupyterlab/cells';
+import {
+  NBTestUtils
+} from '@jupyterlab/testutils';
+
+import $ from 'jquery';
+
+const rendermime = NBTestUtils.defaultRenderMime();
+
+import { CodeCell, CodeCellModel} from '@jupyterlab/cells';
 
 /**
  * The plugin registration information.
@@ -130,7 +138,13 @@ export class ButtonExtension
         var toolbar = createColumnToolbar(parseInt(columnIndex));
         newColumn.prepend(toolbar);
       }
-      //var newCodeCell = new CodeCell();
+
+      const cellFactory = NBTestUtils.createCodeCellFactory();
+      const cellModel = new CodeCellModel({});
+      var newCodeCell = new CodeCell({model:cellModel, contentFactory:cellFactory, rendermime});
+      newCodeCell.setPrompt('');
+      newCodeCell.model.metadata.set("column", numColumns + 1);
+      $(newColumn).append(newCodeCell as unknown as HTMLDivElement);
     }
 
     const addColumnButton = new ToolbarButton({
