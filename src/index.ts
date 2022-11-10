@@ -14,14 +14,6 @@ import {
   INotebookModel,
 } from '@jupyterlab/notebook';
 
-import {
-  NBTestUtils
-} from '@jupyterlab/testutils';
-
-import $ from 'jquery';
-
-const rendermime = NBTestUtils.defaultRenderMime();
-
 import { CodeCell, CodeCellModel} from '@jupyterlab/cells';
 
 /**
