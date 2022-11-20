@@ -170,7 +170,12 @@ import '../style/index.css';
           break;
         }
       }
-      columns[columnIndex].append(cell as unknown as HTMLElement);
+      var notebook: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-Notebook");
+      const cells = (notebook[0] as HTMLElement).getElementsByClassName("jp-Cell");
+      console.log(cells.length);
+      const newCell = cells[cells.length - 1];
+      console.log(cell?.id);
+      columns[columnIndex].append(newCell);
       console.log("Attempting to add the cell to the notebook")
     }
   }
