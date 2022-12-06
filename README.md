@@ -74,3 +74,56 @@ folder is located. Then you can remove the symlink named `2D-JupyterLab-TS` with
 ### Packaging the extension
 
 See [RELEASE](RELEASE.md)
+
+# 2D-JupyterLab-TS Documentation
+
+## What We Accomplished
+
+The purpose of this project is to implement a 2-dimensional version of Jupyter Notebooks within Jupyter Lab. The project aims 
+to implement a column system where cells can be rearranged vertically within a given column, and horizontally by being moved to 
+a particular column. 
+The project currently supports adding and removing columns in the Jupyter Notebook, as well as adding cells 
+automatically to a column within the Jupyter Notebook. The code used to add and remove cells was adapted from elizabethc99's code
+which can be found under resources. The project also supports moving cells from one column to another column using the PIN button that
+is appended to each cell upon its creation.
+
+## What Needs To Get Done
+
+This project is a work in progress and still has several unfinished components. The primary next steps for this project are as follows:
+
+* Implement reindexing the cells to align with the columns that they are in. For example, moving a cell to another
+column should change the execution order of the cells when the run all button is enabled. 
+* Implement moving full columns around, even though the widgets for those columns are already created. 
+* Implement adding a cell to a newly created column instead of creating an empty column.
+* Implement adding cells within columns using the add cell button on top of the column. 
+* Implement restoration of 2D state after saving and closing the notebook. 
+    * Store data in JSON object in notebook metadata, use JSON object to restore notebook state upon load
+## Resources
+
+* https://jupyterlab.readthedocs.io/en/stable/index.html: Official documentation for JupyterLab
+
+* https://github.com/elizabethc99/2D-Jupyter: This is elizabethc99's project was used an example for the functionality of this project. The project is written in JavaScript for Jupyter Notebook while our project is written in TypeScript for Jupyter Notebook in Jupyter Lab.
+
+* https://github.com/mje-nz/jupyterlab-show-cell-tags: This project was used a basis for manipulating cells upon their creation. For this project, we changed the code from appending an annotation to each cell to adding the cell to a selected column.
+
+* https://github.com/jrgranadoswest/jpnb_t1: This project exemplifies how to add buttons with extra functionality to cells in JupyterLab notebooks. It is an updated version of the project https://github.com/ibqn/jupyterlab-codecellbtn, for JupyterLab 3.
+
+
+## Project file structure
+The project files are organized in directories as follows: 
+```
+2D-JupyterLab-TS        Version/setup files folder
+├───__init__.py
+└───_version.py
+src
+└───index.ts            Primary source code file for extension
+style                   Styling files for project
+├───base.css
+├───index.css
+└───index.js
+buildext.sh             Helper script to rebuild extension
+compile.sh              Alternative script to build extension
+tsconfig.json           TypeScript configuration
+package-lock.json       Track project dependencies
+package.json   
+```
