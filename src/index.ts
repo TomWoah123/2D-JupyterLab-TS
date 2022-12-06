@@ -129,6 +129,19 @@ import '../style/index.css';
    return Promise.resolve();
  }
 
+ function reindex() {
+  var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
+  var index = 1;
+  for (var i = 0; i < columns.length; i++) {
+    var cells = (columns[i] as HTMLElement).getElementsByClassName("jp-Cell");
+    for (var j = 0; j < cells.length; j++) {
+      console.log(cells[j].attributes);
+      console.log(index);
+      index++;
+    }
+  }
+ }
+
  export class UpdateCellsTracker implements IDisposable {
   constructor(panel: NotebookPanel) {
     this._panel = panel;
@@ -163,7 +176,7 @@ import '../style/index.css';
       console.log("No Columns found........");
     }
     else {
-      var columnIndex = 0;
+      var columnIndex = columns.length - 1;
       for (var c = 0; c < columns.length; c++) {
         if (columns[c].classList.contains("selected")) {
           columnIndex = c;
@@ -177,6 +190,7 @@ import '../style/index.css';
       console.log(cell?.id);
       columns[columnIndex].append(newCell);
       console.log("Attempting to add the cell to the notebook")
+      reindex();
     }
   }
 
@@ -325,13 +339,26 @@ export class ButtonExtension
         }
         nCols--;
       }
+      reindex();
     }
 
     const addColumn = () => {
       var numColumns = document.getElementsByClassName("column").length;
       // NOTE: currently assuming a column element exists already
       numColumns++;
+      const maxWidth = (document.getElementsByClassName("jp-NotebookPanel")[0] as HTMLElement)!.style!.width;
+      console.log(maxWidth);
+      const width = parseInt(maxWidth.substring(0, maxWidth.length - 2));
+      console.log(width);
       (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = numColumns * 600 + "px";
+      (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+      // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.display = "inline-block";
+      if (numColumns * 600 > width) {
+        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
+        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
+        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
+      }
       // NOTE: uncaught type error for when getElementsByClassName returns NULL
       var insertAfter = numColumns;
       var selection = false;
@@ -386,6 +413,7 @@ export class ButtonExtension
         var toolbar = createColumnToolbar(parseInt(columnIndex));
         newColumn.prepend(toolbar);
       }
+      reindex();
 
       // const cellFactory = NBTestUtils.createCodeCellFactory();
       // const cellModel = new CodeCellModel({});
