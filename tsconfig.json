@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "lib": ["esnext", "dom"],
     "allowSyntheticDefaultImports": true,
     "composite": true,
     "declaration": true,
