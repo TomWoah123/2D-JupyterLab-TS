@@ -130,13 +130,14 @@ import '../style/index.css';
  }
 
  function reindex() {
+  console.log("Inside reindex function....................");
   var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
   var index = 1;
   for (var i = 0; i < columns.length; i++) {
     var cells = (columns[i] as HTMLElement).getElementsByClassName("jp-Cell");
     for (var j = 0; j < cells.length; j++) {
-      console.log(cells[j].attributes);
-      console.log(index);
+      cells[j].setAttribute("index", "" + index);
+      console.log(cells[j].getAttribute("index"));
       index++;
     }
   }
@@ -164,10 +165,10 @@ import '../style/index.css';
   }
 
   updateConnectedCells(cells: IObservableUndoableList<ICellModel>, changed: IObservableList.IChangedArgs<ICellModel>) {
-    changed.newValues.forEach(cell => this.updateCell(cell));
+    changed.newValues.forEach(cell => this.updateCell(cell, cells));
   }
 
-  private updateCell(cellModel: ICellModel) {
+  private updateCell(cellModel: ICellModel, cells: IObservableUndoableList<ICellModel>) {
     const cell = this._panel.content.widgets.find(
       widget => widget.model === cellModel
     );
@@ -241,6 +242,7 @@ import '../style/index.css';
             onClick: () => {
               console.log("Clicked run cell");
               this.commands.execute('run-selected-codecell');
+              reindex();
             },
           },"pin"));
   }
@@ -313,6 +315,24 @@ export class ButtonExtension
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
 
+    const runCellsInOrder = () => {
+      var notebook = panel.content;
+      console.log(notebook.widgets.length);
+      var currentIndex = 1;
+      while (currentIndex < notebook.widgets.length) {
+        for (var cellIndex = 0; cellIndex < notebook.widgets.length; cellIndex++) {
+          var cell = notebook.widgets[cellIndex];
+          var cellsIndex = cell.node.getAttribute("index");
+          console.log(cellsIndex + " " + cell.id);
+          if (parseInt(cellsIndex || "-1") == currentIndex) {
+            cell.activate();
+            NotebookActions.run(notebook, panel.context.sessionContext);
+          }
+        }
+        currentIndex++;
+      }
+    }
+
     const removeColumn = () => {
       var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
       if(columns.length == 0) {
@@ -354,7 +374,7 @@ export class ButtonExtension
       (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
       // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.display = "inline-block";
       if (numColumns * 600 > width) {
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
+        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = numColumns * 600 + "px";
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
@@ -413,7 +433,6 @@ export class ButtonExtension
         var toolbar = createColumnToolbar(parseInt(columnIndex));
         newColumn.prepend(toolbar);
       }
-      reindex();
 
       // const cellFactory = NBTestUtils.createCodeCellFactory();
       // const cellModel = new CodeCellModel({});
@@ -437,6 +456,13 @@ export class ButtonExtension
       tooltip: 'Removes a column to the notebook',
     });
 
+    const runCellsInOrderButton = new ToolbarButton({
+      className: 'run-cells',
+      label: 'Run Cells',
+      onClick: runCellsInOrder,
+      tooltip: 'Runs the cells in order by the cells'
+    });
+
     const refreshColumnButton = new ToolbarButton({
       className: 'ref-col',
       label: '(R)',
@@ -447,10 +473,12 @@ export class ButtonExtension
     panel.toolbar.insertItem(10, 'addColumns', addColumnButton);
     panel.toolbar.insertItem(11, 'removeColumns', removeColumnButton);
     panel.toolbar.insertItem(12, 'refreshCols', refreshColumnButton);
+    panel.toolbar.insertItem(13, 'runCellsInOrder', runCellsInOrderButton);
     return new DisposableDelegate(() => {
       addColumnButton.dispose();
       removeColumnButton.dispose();
       refreshColumnButton.dispose();
+      runCellsInOrderButton.dispose();
     });
   }
 }
@@ -640,7 +668,6 @@ function selectColumn(this: any){
         column.style.border = "";
     }
   }
-
 }
 
 export class ShowCellsInColumns implements DocumentRegistry.WidgetExtension {
