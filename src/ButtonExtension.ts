@@ -235,8 +235,35 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
     moveColRight.classList.add("btn-default");
     moveColRight.style.float = "right";
     moveColRight.innerHTML = '<i class = "fa fa-arrow-right"></i>';
-    moveColRight.onclick = function(){
+    moveColRight.onclick =async function () {
       console.log("moveColRight btn clicked");
+      var reorderedColumns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      var moveColumnIndex = 0;
+      for (var i = 0; i < reorderedColumns.length; i++){
+        const stripNum = (reorderedColumns[i].id).match(/(\d+)/);
+        if (stripNum){
+          if (parseInt(stripNum[0]) === column){
+            moveColumnIndex = i;
+            break;
+          }
+        }
+      }
+      for (var i = moveColumnIndex; i < reorderedColumns.length - 1; i++){
+        const swapColumn = reorderedColumns[i];
+        reorderedColumns[i] = reorderedColumns[i + 1];
+        reorderedColumns[i + 1] = swapColumn;
+      }
+      // Create a document fragment to hold the reordered columns
+      const fragment = document.createDocumentFragment();
+      // Append each reordered column to the fragment
+      const parentElement = reorderedColumns[0].parentNode;
+      reorderedColumns.forEach(col => {
+        col.parentNode?.removeChild(col);
+        fragment.appendChild(col);
+      });
+      // Replace the original columns with the reordered columns
+      parentElement?.appendChild(fragment);
+      console.log("moveRight successful");
     };
     buttons.append(moveColRight);
   
@@ -246,8 +273,37 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
     moveColLeft.style.float = "right";
     
     moveColLeft.innerHTML = '<i class = "fa fa-arrow-left"></i>';
-    moveColLeft.onclick = function(){
+    moveColLeft.onclick = function () {
       console.log("moveColLeft btn clicked");
+      var reorderedColumns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      var moveColumnIndex = 0;
+      for (var i = 0; i < reorderedColumns.length; i++){
+        const stripNum = (reorderedColumns[i].id).match(/(\d+)/);
+        if (stripNum){
+          if (parseInt(stripNum[0]) === column){
+            moveColumnIndex = i;
+            break;
+          }
+        }
+      }
+      console.log(moveColumnIndex);
+      for (var i = moveColumnIndex; i > 0 ; i--){
+        const swapColumn = reorderedColumns[i];
+        reorderedColumns[i] = reorderedColumns[i - 1];
+        reorderedColumns[i -1] = swapColumn;
+      }
+      // Create a document fragment to hold the reordered columns
+      const fragment = document.createDocumentFragment();
+      // Append each reordered column to the fragment
+      const parentElement = reorderedColumns[0].parentNode;
+      reorderedColumns.forEach(col => {
+        col.parentNode?.removeChild(col);
+        fragment.appendChild(col);
+      });
+
+      // Replace the original columns with the reordered columns
+      parentElement?.appendChild(fragment);
+      console.log("moveLeft succesful");
     }
     buttons.append(moveColLeft);
   
@@ -257,8 +313,6 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
     clickable.style.height = "35px";
     clickable.addEventListener("click", selectColumn);
     buttons.append(clickable);
-  
-    
     toolbar.append(buttons);
     return toolbar;
 }
