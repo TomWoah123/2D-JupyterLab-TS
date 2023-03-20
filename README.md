@@ -96,6 +96,8 @@ column should change the execution order of the cells when the run all button is
 * Implement moving full columns around, even though the widgets for those columns are already created. 
 * Implement adding a cell to a newly created column instead of creating an empty column.
 * Implement adding cells within columns using the add cell button on top of the column. 
+* Update Styling to scroll horizontally when the number of columns overflow the screen.
+* Implement arrow key navigation within the 2D Jupyter Notebook. Supporting left/right and up/down arrow keys.
 * Implement restoration of 2D state after saving and closing the notebook. 
     * Store data in JSON object in notebook metadata, use JSON object to restore notebook state upon load
 ## Resources
