@@ -73,6 +73,7 @@ export class ButtonExtension
 
     const addColumn = () => {
       var numColumns = document.getElementsByClassName("column").length;
+      console.log(`numsColumns : ${numColumns}`);
       // NOTE: currently assuming a column element exists already
       numColumns++;
       const maxWidth = (document.getElementsByClassName("jp-NotebookPanel")[0] as HTMLElement)!.style!.width;
@@ -85,8 +86,8 @@ export class ButtonExtension
       if (numColumns * 600 > width) {
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowY = "scroll";
+        // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+        // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowY = "scroll";
         (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
       }
       // NOTE: uncaught type error for when getElementsByClassName returns NULL
@@ -94,6 +95,7 @@ export class ButtonExtension
       var selection = false;
 
       var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      console.log(`columnsList : ${columns}`)
       for (var c = 0; c < columns.length; c++) {
         columns[c].style.float = 'left';
         columns[c].style.margin = '10px';
@@ -142,6 +144,25 @@ export class ButtonExtension
         // console.log("Adding col: " + parseInt(columnIndex));
         var toolbar = createColumnToolbar(parseInt(columnIndex),panel);
         newColumn.prepend(toolbar);
+        newColumn.append()
+        if (parseInt(columnIndex) === 1) {
+
+          const fragment = document.createDocumentFragment();
+
+          var initialCells = Array.from(document.getElementsByClassName("jp-Notebook-cell") as HTMLCollectionOf<HTMLElement>)
+          initialCells.forEach(cell => {
+            cell.parentNode?.removeChild(cell);
+            fragment.appendChild(cell);
+            
+          });
+          newColumn.append(fragment);
+          
+          // reorderedColumns.forEach(col => {
+          //   col.parentNode?.removeChild(col);
+          //   fragment.appendChild(col);
+          // });
+
+        }
       }
       reindex();
 
