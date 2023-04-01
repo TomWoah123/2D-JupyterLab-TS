@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ReactWidget } from '@jupyterlab/apputils';
 import { ICellFooter } from '@jupyterlab/cells';
 import { CommandRegistry } from '@lumino/commands';
+import { reindex } from './ButtonExtension';
 
 
 const CELL_FOOTER_CLASS = 'jp-CellFooter';
@@ -30,8 +31,9 @@ export class CellFooterWithButton extends ReactWidget implements ICellFooter {
          React.createElement("button",{
              className: CELL_FOOTER_BUTTON_CLASS,
              onClick: () => {
-               console.log("Clicked run cell");
+               console.log("Clicked PIN button");
                this.commands.execute('run-selected-codecell');
+               reindex();
              },
            },"pin"));
    }

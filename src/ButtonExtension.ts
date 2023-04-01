@@ -2,7 +2,7 @@ import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { NotebookPanel,INotebookModel } from '@jupyterlab/notebook';
 import { ToolbarButton, } from '@jupyterlab/apputils';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
-import { INotebookTracker, NotebookActions} from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
 // Global var in limbo (TODO: add to class)
 var nCols:number = 1; // default to 1
 
@@ -25,17 +25,22 @@ export class ButtonExtension
   ): IDisposable {
 
     const runCellsInOrder = () => {
+      console.log("Inside runCellsInOrder.............");
       var notebook = panel.content;
       console.log(notebook.widgets.length);
       var currentIndex = 1;
-      while (currentIndex < notebook.widgets.length) {
-        for (var cellIndex = 0; cellIndex < notebook.widgets.length; cellIndex++) {
+      while (currentIndex < notebook.widgets.length + 1) {
+        var foundCell = false;
+        for (var cellIndex = 0; cellIndex < notebook.widgets.length && !foundCell; cellIndex++) {
           var cell = notebook.widgets[cellIndex];
           var cellsIndex = cell.node.getAttribute("index");
-          console.log(cellsIndex + " " + cell.id);
+          console.log(cellsIndex);
           if (parseInt(cellsIndex || "-1") == currentIndex) {
-            cell.activate();
+            console.log("Running the cell at index " + cellsIndex);
+            NotebookActions.deselectAll(notebook);
+            notebook.select(cell);
             NotebookActions.run(notebook, panel.context.sessionContext);
+            foundCell = true;
           }
         }
         currentIndex++;
@@ -84,11 +89,11 @@ export class ButtonExtension
       (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
       // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.display = "inline-block";
       if (numColumns * 600 > width) {
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
+        //(document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
+        //(document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
         // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
         // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowY = "scroll";
-        (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
+        // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
       }
       // NOTE: uncaught type error for when getElementsByClassName returns NULL
       var insertAfter = numColumns;
