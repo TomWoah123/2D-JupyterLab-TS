@@ -62,6 +62,43 @@ export class ButtonExtension
       reindex();
     }
 
+    const moveCellToTheLeft = () => {
+      var notebook = panel.content;
+      var cells = notebook.widgets;
+      var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
+      var selectedCell = notebook.activeCell == null ? cells[cells.length - 1] : notebook.activeCell;
+      var columnNumber = parseInt(selectedCell.node.getAttribute("column") || "-1");
+      if (columnNumber == -1) {
+        console.log("Cell does not belong to a column");
+        return;
+      }
+      var selectedCellIndexInColumn = parseInt(selectedCell.node.getAttribute("columnIndex") || "-1");
+      if (selectedCellIndexInColumn == -1) {
+        console.log("Cell does not have a column index");
+        return;
+      }
+      var columnWithSelectedCell = columns[columnNumber];
+      var cellsWithinColumn = Array.from(columnWithSelectedCell.getElementsByClassName("jp-CodeCell"));
+      var cellCopy = selectedCell.clone();
+      if (columnNumber == 0) {
+        console.log("Cannot move cell to the left any further");
+        return;
+      }
+      var nextColumn = columns[columnNumber - 1];
+      var nextColumnCells = nextColumn.getElementsByClassName("jp-CodeCell");
+      var insertionPoint = Math.min(selectedCellIndexInColumn, nextColumnCells.length);
+      console.log(insertionPoint);
+      var reference = nextColumnCells.item(insertionPoint);
+      if (insertionPoint == 0) {
+        nextColumn.append(cellCopy.node);
+      } else {
+        nextColumn.insertBefore(cellCopy.node, reference);
+      }
+      cellsWithinColumn[selectedCellIndexInColumn].remove();
+      NotebookActions.deselectAll(notebook);
+      reindex();
+    }
+
     const runCellsInOrder = () => {
       console.log("Inside runCellsInOrder.............");
       var notebook = panel.content;
@@ -109,21 +146,13 @@ export class ButtonExtension
       // }
       // NotebookActions.deselectAll(notebook);
       // NotebookActions.runAll(notebook, panel.context.sessionContext);
-      
-      for (var cellIndex = 0; cellIndex < cellsCopy.length; cellIndex++) {
-        var cell = cellsCopy[cellIndex];
-        var currentCellIndex = parseInt(cell.node.getAttribute("index") || "-1");
-        if (currentCellIndex == -1) {
-          console.log("No index was given to this cell");
-          return;
-        }
-        console.log("Index we are trying to run: " + cellIndex + ". Current Cell Index we are looking at: " + currentCellIndex);
-        if (currentCellIndex == cellIndex) {
-          notebook.select(cell);
-          NotebookActions.run(notebook, panel.context.sessionContext);
-          NotebookActions.deselectAll(notebook);
-          continue;
-        }
+      NotebookActions.deselectAll(notebook);
+      var sortedCells = Array.from(cellsCopy).sort((a, b) => parseInt(a.node.getAttribute("index") || "-1") - parseInt(b.node.getAttribute("index") || "-1"));
+      for (var cellIndex = 0; cellIndex < sortedCells.length; cellIndex++) {
+        var cell = sortedCells[cellIndex];
+        notebook.select(cell);
+        NotebookActions.run(notebook, panel.context.sessionContext);
+        NotebookActions.deselectAll(notebook);
       }
     }
 
@@ -287,6 +316,13 @@ export class ButtonExtension
       tooltip: 'Move the cell to the right column'
     })
 
+    const moveCellToLeftColumn = new ToolbarButton({
+      className: 'move-cell-left',
+      label: '<',
+      onClick: moveCellToTheLeft,
+      tooltip: 'Move the cell to the left column'
+    })
+
     // const refreshColumnButton = new ToolbarButton({
     //   className: 'ref-col',
     //   label: '(R)',
@@ -301,11 +337,15 @@ export class ButtonExtension
     panel.toolbar.insertItem(11, 'removeColumns', removeColumnButton);
     // panel.toolbar.insertItem(12, 'refreshCols', refreshColumnButton);
     panel.toolbar.insertItem(12, 'runCellsInOrder', runCellsInOrderButton);
+    panel.toolbar.insertItem(6, 'moveCellToLeft', moveCellToLeftColumn);
     panel.toolbar.insertItem(6, 'moveCellToRight', moveCellToRightColumn);
     return new DisposableDelegate(() => {
       addColumnButton.dispose();
       removeColumnButton.dispose();
       runCellsInOrderButton.dispose();
+      moveCellToLeftColumn.dispose();
+      moveCellToRightColumn.dispose();
+
       // refreshColumnButton.dispose();
     });
   }

@@ -99,9 +99,11 @@ This project is a work in progress and still has several unfinished components. 
 
 * Implement reindexing the cells to align with the columns that they are in. For example, moving a cell to another
 column should change the execution order of the cells when the run all button is enabled. (Partially implemented)
+* Fix adding the cells to the column since changing the css for the horizontal scrolling messed this up.
+* Fully implement dragging cells to a column (Partially implemented)
 * Implement adding a cell to a newly created column instead of creating an empty column.
 * Implement arrow key navigation within the 2D Jupyter Notebook. Supporting left/right and up/down arrow keys.
-* Implement left and right buttons on the main toolbar to move columns in between cells instead of the PIN button.
+* Implement left and right buttons on the main toolbar to move columns in between cells instead of the PIN button (Currently being worked on).
 * Implement restoration of 2D state after saving and closing the notebook. 
     * Store data in JSON object in notebook metadata, use JSON object to restore notebook state upon load
 ## Resources
