@@ -9,11 +9,11 @@ import {
 
 import { ReadonlyPartialJSONObject } from '@lumino/coreutils';
 
-import { IEditorServices } from '@jupyterlab/codeeditor';
+// import { IEditorServices } from '@jupyterlab/codeeditor';
 import '../style/index.css';
 
 import { ButtonExtension,update_styling } from './ButtonExtension';
-import ContentFactoryWithFooterButton from './ContentFactoryWithFooterButton';
+// import ContentFactoryWithFooterButton from './ContentFactoryWithFooterButton';
 import ShowCellsInColumns from './ShowCellsInColumns';
 
 // import {CodeCell} from '@jupyterlab/cells';
@@ -159,26 +159,26 @@ const footerButtonExtension: JupyterFrontEndPlugin<void> = {
    return Promise.resolve();
  }
 
-/**
- * The notebook cell factory provider.
- */
- const cellFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
-  id: 'jpnb_t1:factory',
-  provides: NotebookPanel.IContentFactory,
-  requires: [IEditorServices],
-  autoStart: true,
-  activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
-    // tslint:disable-next-line:no-console
-    console.log(
-      'JupyterLab extension jupyterlab-cellcodebtn',
-      'overrides default nootbook content factory'
-    );
+// /**
+//  * The notebook cell factory provider.
+//  */
+//  const cellFactory: JupyterFrontEndPlugin<NotebookPanel.IContentFactory> = {
+//   id: 'jpnb_t1:factory',
+//   provides: NotebookPanel.IContentFactory,
+//   requires: [IEditorServices],
+//   autoStart: true,
+//   activate: (app: JupyterFrontEnd, editorServices: IEditorServices) => {
+//     // tslint:disable-next-line:no-console
+//     console.log(
+//       'JupyterLab extension jupyterlab-cellcodebtn',
+//       'overrides default nootbook content factory'
+//     );
 
-    const { commands } = app;
-    const editorFactory = editorServices.factoryService.newInlineEditor;
-    return new ContentFactoryWithFooterButton(commands, { editorFactory });
-  }
-};
+//     const { commands } = app;
+//     const editorFactory = editorServices.factoryService.newInlineEditor;
+//     return new ContentFactoryWithFooterButton(commands, { editorFactory });
+//   }
+// };
 
 /**
  * The plugin registration information.
@@ -195,7 +195,7 @@ const footerButtonExtension: JupyterFrontEndPlugin<void> = {
  */
 const plugins: Array<JupyterFrontEndPlugin<any>> = [
   footerButtonExtension,
-  cellFactory,
+  //cellFactory,
   two_dim_jup_plugin
 ]
 export default plugins;

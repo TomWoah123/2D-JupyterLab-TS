@@ -3,6 +3,7 @@ import { NotebookPanel,INotebookModel } from '@jupyterlab/notebook';
 import { ToolbarButton, } from '@jupyterlab/apputils';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
 import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+// import { KernelAPI } from '@jupyterlab/services';
 // Global var in limbo (TODO: add to class)
 var nCols:number = 1; // default to 1
 
@@ -24,26 +25,105 @@ export class ButtonExtension
     context: DocumentRegistry.IContext<INotebookModel>
   ): IDisposable {
 
+    const moveCellToTheRight = () => {
+      var notebook = panel.content;
+      var cells = notebook.widgets;
+      var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
+      var selectedCell = notebook.activeCell == null ? cells[cells.length - 1] : notebook.activeCell;
+      var columnNumber = parseInt(selectedCell.node.getAttribute("column") || "-1");
+      if (columnNumber == -1) {
+        console.log("Cell does not belong to a column");
+        return;
+      }
+      var selectedCellIndexInColumn = parseInt(selectedCell.node.getAttribute("columnIndex") || "-1");
+      if (selectedCellIndexInColumn == -1) {
+        console.log("Cell does not have a column index");
+        return;
+      }
+      var columnWithSelectedCell = columns[columnNumber];
+      var cellsWithinColumn = Array.from(columnWithSelectedCell.getElementsByClassName("jp-CodeCell"));
+      var cellCopy = selectedCell.clone();
+      if (columnNumber >= columns.length - 1) {
+        console.log("Cannot move cell to the right any further");
+        return;
+      }
+      var nextColumn = columns[columnNumber + 1];
+      var nextColumnCells = nextColumn.getElementsByClassName("jp-CodeCell");
+      var insertionPoint = Math.min(selectedCellIndexInColumn, nextColumnCells.length);
+      console.log(insertionPoint);
+      var reference = nextColumnCells.item(insertionPoint);
+      if (insertionPoint == 0) {
+        nextColumn.append(cellCopy.node);
+      } else {
+        nextColumn.insertBefore(cellCopy.node, reference);
+      }
+      cellsWithinColumn[selectedCellIndexInColumn].remove();
+      NotebookActions.deselectAll(notebook);
+      reindex();
+    }
+
     const runCellsInOrder = () => {
       console.log("Inside runCellsInOrder.............");
       var notebook = panel.content;
+      // var kernelID = panel.sessionContext.session?.id;
+      // if (kernelID == undefined) {
+      //   kernelID = "No Kernel Found"
+      // }
+      // console.log("This is the kernel id: " + kernelID);
+      // KernelAPI.restartKernel(kernelID);
       console.log(notebook.widgets.length);
-      var currentIndex = 1;
-      while (currentIndex < notebook.widgets.length + 1) {
-        var foundCell = false;
-        for (var cellIndex = 0; cellIndex < notebook.widgets.length && !foundCell; cellIndex++) {
-          var cell = notebook.widgets[cellIndex];
-          var cellsIndex = cell.node.getAttribute("index");
-          console.log(cellsIndex);
-          if (parseInt(cellsIndex || "-1") == currentIndex) {
-            console.log("Running the cell at index " + cellsIndex);
-            NotebookActions.deselectAll(notebook);
-            notebook.select(cell);
-            NotebookActions.run(notebook, panel.context.sessionContext);
-            foundCell = true;
-          }
+      var cellsCopy = notebook.widgets
+      // for (var i = 0; i < cellsCopy.length; i++) {
+      //   NotebookActions.deselectAll(notebook);
+      //   var cell = cellsCopy[i];
+      //   notebook.select(cell);
+      //   var cellIndex = parseInt(cell.node.getAttribute("index") || "-1");
+      //   if (cellIndex == -1) {
+      //     console.log("No index was given to this");
+      //     break;
+      //   }
+      //   var currentIndex = notebook.widgets.findIndex((element) => element == cell);
+      //   console.log("Cell's index in the list: " + currentIndex);
+      //   console.log("Cell Index being currently looked at: " + cellIndex);
+      //   while (currentIndex != cellIndex) {
+      //     if (currentIndex < cellIndex) {
+      //       console.log("There are this many cells in the notebook: " + cellsCopy.length);
+      //       console.log("Moving cell down..............");
+      //       notebook.select(cell);
+      //       NotebookActions.moveDown(notebook);
+      //     } else {
+      //       console.log("There are this many cells in the notebook: " + cellsCopy.length);
+      //       console.log("Moving cell up................");
+      //       notebook.select(cell);
+      //       NotebookActions.moveUp(notebook);
+      //     }
+      //     currentIndex = notebook.widgets.findIndex((element) => element == cell);
+      //     console.log("Cell's index in the list updated: " + currentIndex);
+      //     if (currentIndex == cellIndex) {
+      //       console.log("Indices are equal!!!!...............");
+      //       break;
+      //     } else {
+      //       console.log(currentIndex + " " + cellIndex);
+      //     }
+      //   }
+      // }
+      // NotebookActions.deselectAll(notebook);
+      // NotebookActions.runAll(notebook, panel.context.sessionContext);
+      
+      for (var cellIndex = 0; cellIndex < cellsCopy.length; cellIndex++) {
+        var cell = cellsCopy[cellIndex];
+        var currentCellIndex = parseInt(cell.node.getAttribute("index") || "-1");
+        if (currentCellIndex == -1) {
+          console.log("No index was given to this cell");
+          return;
         }
-        currentIndex++;
+        console.log("Index we are trying to run: " + cellIndex + ". Current Cell Index we are looking at: " + currentCellIndex);
+        if (currentCellIndex == cellIndex) {
+          notebook.select(cell);
+          NotebookActions.run(notebook, panel.context.sessionContext);
+          NotebookActions.deselectAll(notebook);
+          continue;
+        }
       }
     }
 
@@ -200,6 +280,13 @@ export class ButtonExtension
       tooltip: 'Runs the cells in order by the cells'
     });
 
+    const moveCellToRightColumn = new ToolbarButton({
+      className: 'move-cell-right',
+      label: '>',
+      onClick: moveCellToTheRight,
+      tooltip: 'Move the cell to the right column'
+    })
+
     // const refreshColumnButton = new ToolbarButton({
     //   className: 'ref-col',
     //   label: '(R)',
@@ -214,6 +301,7 @@ export class ButtonExtension
     panel.toolbar.insertItem(11, 'removeColumns', removeColumnButton);
     // panel.toolbar.insertItem(12, 'refreshCols', refreshColumnButton);
     panel.toolbar.insertItem(12, 'runCellsInOrder', runCellsInOrderButton);
+    panel.toolbar.insertItem(6, 'moveCellToRight', moveCellToRightColumn);
     return new DisposableDelegate(() => {
       addColumnButton.dispose();
       removeColumnButton.dispose();
@@ -224,17 +312,19 @@ export class ButtonExtension
 }
 
 function reindex() {
-    console.log("Inside reindex function....................");
-    var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
-    var index = 1;
-    for (var i = 0; i < columns.length; i++) {
-      var cells = (columns[i] as HTMLElement).getElementsByClassName("jp-Cell");
-      for (var j = 0; j < cells.length; j++) {
-        cells[j].setAttribute("index", "" + index);
-        console.log(cells[j].getAttribute("index"));
-        index++;
-      }
+  console.log("Inside reindex function....................");
+  var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>);
+  var index = 0;
+  for (var i = 0; i < columns.length; i++) {
+    var cells = (columns[i] as HTMLElement).getElementsByClassName("jp-Cell");
+    for (var j = 0; j < cells.length; j++) {
+      cells[j].setAttribute("index", "" + index);
+      cells[j].setAttribute("column", "" + i);
+      cells[j].setAttribute("columnIndex", "" + j);
+      console.log(cells[j].getAttribute("index"));
+      index++;
     }
+  }
 }
 
 function createColumnToolbar(column: number, panel: NotebookPanel ) {

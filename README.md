@@ -86,18 +86,22 @@ The project currently supports adding and removing columns in the Jupyter Notebo
 automatically to a column within the Jupyter Notebook. The code used to add and remove cells was adapted from elizabethc99's code
 which can be found under resources. The project also supports moving cells from one column to another column using the PIN button that
 is appended to each cell upon its creation.
+The project has an implementation of running all the code cells based on the columns that they are in. However, this functionality is not
+fully ready yet, as the PIN button disappears whenever a cell gets moved. The PIN button needs to be replaced with left and right arrows on
+the toolbar which should simplify the user experience for moving cells in between columns. The columns also have functionality on their toolbar buttons,
+so that way users can add cells using the column toolbar and can completely change columns around. The styling has also been adjusted so that the user
+can scroll horizontally to add more columns, however, this has messed up some earlier functionality with the column toolbar buttons which need to be 
+readjusted.
 
 ## What Needs To Get Done
 
 This project is a work in progress and still has several unfinished components. The primary next steps for this project are as follows:
 
 * Implement reindexing the cells to align with the columns that they are in. For example, moving a cell to another
-column should change the execution order of the cells when the run all button is enabled. 
-* Implement moving full columns around, even though the widgets for those columns are already created. 
+column should change the execution order of the cells when the run all button is enabled. (Partially implemented)
 * Implement adding a cell to a newly created column instead of creating an empty column.
-* Implement adding cells within columns using the add cell button on top of the column. 
-* Update Styling to scroll horizontally when the number of columns overflow the screen.
 * Implement arrow key navigation within the 2D Jupyter Notebook. Supporting left/right and up/down arrow keys.
+* Implement left and right buttons on the main toolbar to move columns in between cells instead of the PIN button.
 * Implement restoration of 2D state after saving and closing the notebook. 
     * Store data in JSON object in notebook metadata, use JSON object to restore notebook state upon load
 ## Resources
@@ -118,7 +122,12 @@ The project files are organized in directories as follows:
 ├───__init__.py
 └───_version.py
 src
-└───index.ts            Primary source code file for extension
+└───ButtonExtension.ts            Primary source code file for extension
+└───CellFooterWithButton.ts 
+└───ContentFactoryWithFooterButton.ts 
+└───index.ts 
+└───ShowCellsInColumns.ts 
+└───UpdateCellsTracker.ts 
 style                   Styling files for project
 ├───base.css
 ├───index.css

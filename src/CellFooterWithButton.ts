@@ -1,42 +1,42 @@
-import * as React from 'react';
-import { ReactWidget } from '@jupyterlab/apputils';
-import { ICellFooter } from '@jupyterlab/cells';
-import { CommandRegistry } from '@lumino/commands';
-import { reindex } from './ButtonExtension';
+// import * as React from 'react';
+// import { ReactWidget } from '@jupyterlab/apputils';
+// import { ICellFooter } from '@jupyterlab/cells';
+// import { CommandRegistry } from '@lumino/commands';
+// import { reindex } from './ButtonExtension';
 
 
-const CELL_FOOTER_CLASS = 'jp-CellFooter';
-const CELL_FOOTER_DIV_CLASS = 'ccb-cellFooterContainer';
-const CELL_FOOTER_BUTTON_CLASS = 'ccb-cellFooterBtn';
+// const CELL_FOOTER_CLASS = 'jp-CellFooter';
+// const CELL_FOOTER_DIV_CLASS = 'ccb-cellFooterContainer';
+// const CELL_FOOTER_BUTTON_CLASS = 'ccb-cellFooterBtn';
 
 
- /**
-  * Extend default implementation of a cell footer.
-  */
-export class CellFooterWithButton extends ReactWidget implements ICellFooter {
-    /**
-     * Construct a new cell footer.
-     */
-    constructor(commands: CommandRegistry) {
-      super();
-      this.addClass(CELL_FOOTER_CLASS);
-      this.commands = commands;
-    }
+//  /**
+//   * Extend default implementation of a cell footer.
+//   */
+// export class CellFooterWithButton extends ReactWidget implements ICellFooter {
+//     /**
+//      * Construct a new cell footer.
+//      */
+//     constructor(commands: CommandRegistry) {
+//       super();
+//       this.addClass(CELL_FOOTER_CLASS);
+//       this.commands = commands;
+//     }
  
-    private readonly commands: CommandRegistry;
+//     private readonly commands: CommandRegistry;
  
-    render() {
-       console.log('Rendering element');
-       return React.createElement("div", {className: CELL_FOOTER_DIV_CLASS }, 
-         React.createElement("button",{
-             className: CELL_FOOTER_BUTTON_CLASS,
-             onClick: () => {
-               console.log("Clicked PIN button");
-               this.commands.execute('run-selected-codecell');
-               reindex();
-             },
-           },"pin"));
-   }
-}
+//     render() {
+//        console.log('Rendering element');
+//        return React.createElement("div", {className: CELL_FOOTER_DIV_CLASS }, 
+//          React.createElement("button",{
+//              className: CELL_FOOTER_BUTTON_CLASS,
+//              onClick: () => {
+//                console.log("Clicked PIN button");
+//                this.commands.execute('run-selected-codecell');
+//                reindex();
+//              },
+//            },"pin"));
+//    }
+// }
 
-export default CellFooterWithButton
+// export default CellFooterWithButton
