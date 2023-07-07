@@ -62,4 +62,18 @@
   .jp-CodeCell .jp-Cell-outputWrapper {
     order: 4;
   }
-  
+  .jp-scroll-notebook {
+    display: flex;
+    overflow-x: scroll;
+    flex-direction: row;
+  }
+
+  .jp-column {
+    width: 500px;
+    height: inherit;
+    margin: 10px;
+    float: left;
+    min-height: 30px;
+    background-color: rgba(255,255,255,1);
+    flex-shrink: 0;
+  }

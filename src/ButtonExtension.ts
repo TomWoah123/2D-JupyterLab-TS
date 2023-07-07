@@ -2,8 +2,9 @@ import { DocumentRegistry } from '@jupyterlab/docregistry';
 import { NotebookPanel,INotebookModel } from '@jupyterlab/notebook';
 import { ToolbarButton, } from '@jupyterlab/apputils';
 import { IDisposable, DisposableDelegate } from '@lumino/disposable';
-import { INotebookTracker, NotebookActions } from '@jupyterlab/notebook';
+import { INotebookTracker, NotebookActions} from '@jupyterlab/notebook';
 // import { KernelAPI } from '@jupyterlab/services';
+import '../style/index.css';
 // Global var in limbo (TODO: add to class)
 var nCols:number = 1; // default to 1
 
@@ -100,7 +101,6 @@ export class ButtonExtension
     }
 
     const runCellsInOrder = () => {
-      console.log("Inside runCellsInOrder.............");
       var notebook = panel.content;
       // var kernelID = panel.sessionContext.session?.id;
       // if (kernelID == undefined) {
@@ -157,7 +157,7 @@ export class ButtonExtension
     }
 
     const removeColumn = () => {
-      var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      var columns = Array.from(document.getElementsByClassName("jp-column") as HTMLCollectionOf<HTMLElement>)
       if(columns.length == 0) {
         console.log("No columns found; can't delete");
       }
@@ -186,81 +186,117 @@ export class ButtonExtension
     }
 
     const addColumn = () => {
-      var numColumns = document.getElementsByClassName("column").length;
-      console.log(`numsColumns : ${numColumns}`);
-      // NOTE: currently assuming a column element exists already
-      numColumns++;
-      const maxWidth = (document.getElementsByClassName("jp-NotebookPanel")[0] as HTMLElement)!.style!.width;
-      console.log(maxWidth);
-      const width = parseInt(maxWidth.substring(0, maxWidth.length - 2));
-      console.log(width);
-      (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = numColumns * 600 + "px";
-      (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+      // var numColumns = document.getElementsByClassName("column").length;
+      // console.log(`numsColumns : ${numColumns}`);
+      // // NOTE: currently assuming a column element exists already
+      // numColumns++;
+
+
       // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.display = "inline-block";
-      if (numColumns * 600 > width) {
+      
+      // if (numColumns * 600 > width) {
         //(document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
         //(document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
         // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
         // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowY = "scroll";
         // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
-      }
+      // }
+      // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = numColumns * 600 + "px";
+      // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+      // // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.display = "inline-block";
+      // if (numColumns * 600 > width) {
+      //   console.log("reached this condition");
+      //   (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.width = maxWidth;
+      //   (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.height = "100%";
+      //   (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.overflowX = "scroll";
+      //   // (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.position = "relative";
+      //   (document.getElementsByClassName("jp-Notebook")[0] as HTMLElement)!.style!.whiteSpace = "nowrap";
+      // }
       // NOTE: uncaught type error for when getElementsByClassName returns NULL
-      var insertAfter = numColumns;
-      var selection = false;
+      // var insertAfter = numColumns;
+      // var selection = false;
 
-      var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
-      console.log(`columnsList : ${columns}`)
-      for (var c = 0; c < columns.length; c++) {
-        columns[c].style.float = 'left';
-        columns[c].style.margin = '10px';
-        var columnId = columns[c].id;
-        var colId = parseInt(columnId.replace("column", ""));
-        if (colId >= insertAfter) {
-          var oldIndex = colId;
-          colId++;
-          columns[c].id = "column" + colId;
-          columns[c].querySelector("#click" + oldIndex)!.id = "click" + colId;
-          columns[c].querySelector("#columnToolbar" + oldIndex)!.id = "columnToolbar" + colId;
-          columns[c].querySelector("#resizeCol" + oldIndex)!.id = "resizeCol" + colId;
+      // var columns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      // console.log(`columnsList : ${columns}`)
+      // for (var c = 0; c < columns.length; c++) {
+      //   columns[c].style.float = 'left';
+      //   columns[c].style.margin = '10px';
+      //   var columnId = columns[c].id;
+      //   var colId = parseInt(columnId.replace("column", ""));
+      //   if (colId >= insertAfter) {
+      //     var oldIndex = colId;
+      //     colId++;
+      //     columns[c].id = "column" + colId;
+      //     columns[c].querySelector("#click" + oldIndex)!.id = "click" + colId;
+      //     columns[c].querySelector("#columnToolbar" + oldIndex)!.id = "columnToolbar" + colId;
+      //     columns[c].querySelector("#resizeCol" + oldIndex)!.id = "resizeCol" + colId;
+      //   }
+      //   if (columns[c].classList.contains("selected")) {
+      //     selection = true;
+      //     insertAfter = parseInt(columns[c].id.replace("column", ""));
+      //   }
+      // }
+
+      // var insertAt = numColumns;
+      // if (selection) {
+      //   insertAt = insertAfter + 1;
+      // }
+
+      // var newColumn = document.createElement("div");
+      // newColumn.classList.add("jp-column");
+      // newColumn.id = "column" + insertAt.toString();
+      // var notebook: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-Notebook");
+      // if(notebook.length == 0) {
+      //   // Upon initial call, the jp-Notebook element likely has not loaded yet
+      //   console.log("Error: no jp-Notebook class elements found");
+      //   console.log(notebook);
+      // } else {
+      //   // Add column on right side of notebook
+      //   // TODO: resize columns/notebook after add
+      //   notebook[0].appendChild(newColumn);
+      //   var columnIndex = newColumn.id;
+      //   columnIndex = columnIndex.replace("column", "");
+      //   // console.log("Adding col: " + parseInt(columnIndex));
+      //   var toolbar = createColumnToolbar(parseInt(columnIndex),panel);
+      //   newColumn.prepend(toolbar);
+      //   newColumn.append()
+      //   if (parseInt(columnIndex) === 1) {
+
+      //     const fragment = document.createDocumentFragment();
+
+      //     var initialCells = Array.from(document.getElementsByClassName("jp-Notebook-cell") as HTMLCollectionOf<HTMLElement>)
+      //     initialCells.forEach(cell => {
+      //       cell.parentNode?.removeChild(cell);
+      //       fragment.appendChild(cell);
+            
+      //     });
+      //     newColumn.append(fragment);
+          
+      //     // reorderedColumns.forEach(col => {
+      //     //   col.parentNode?.removeChild(col);
+      //     //   fragment.appendChild(col);
+      //     // });
+
+      //   }
+      // }
+      // reindex();
+
+
+      var numColumns = document.getElementsByClassName("jp-column").length;
+      const jpNotebook = document.getElementsByClassName('jp-Notebook')[0];
+      if (jpNotebook !== null){
+        if (numColumns===0){
+          jpNotebook.classList.add('jp-scroll-notebook')
         }
-        if (columns[c].classList.contains("selected")) {
-          selection = true;
-          insertAfter = parseInt(columns[c].id.replace("column", ""));
-        }
-      }
-
-      var insertAt = numColumns;
-      if (selection) {
-        insertAt = insertAfter + 1;
-      }
-
-      var newColumn = document.createElement("div");
-      newColumn.classList.add("column");
-      newColumn.id = "column" + insertAt.toString();
-      newColumn.style.width = "500px";
-      newColumn.style.float = "left";
-      newColumn.style.margin = "10px";
-      newColumn.style.height = "inherit";
-      newColumn.style.minHeight = "30px";
-      newColumn.style.backgroundColor = "rgba(255, 255, 255, 1)";
-
-      var notebook: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-Notebook");
-      if(notebook.length == 0) {
-        // Upon initial call, the jp-Notebook element likely has not loaded yet
-        console.log("Error: no jp-Notebook class elements found");
-        console.log(notebook);
-      } else {
-        // Add column on right side of notebook
-        // TODO: resize columns/notebook after add
-        notebook[0].appendChild(newColumn);
-        var columnIndex = newColumn.id;
-        columnIndex = columnIndex.replace("column", "");
-        // console.log("Adding col: " + parseInt(columnIndex));
-        var toolbar = createColumnToolbar(parseInt(columnIndex),panel);
+        numColumns++;
+        var newColumn = document.createElement("div");
+        newColumn.classList.add("jp-column");
+        
+        newColumn.id = "column" + numColumns.toString();
+        var toolbar = createColumnToolbar(numColumns,panel);
         newColumn.prepend(toolbar);
-        newColumn.append()
-        if (parseInt(columnIndex) === 1) {
-
+        if (numColumns === 1) {
+          newColumn.classList.add('selected')
           const fragment = document.createDocumentFragment();
 
           var initialCells = Array.from(document.getElementsByClassName("jp-Notebook-cell") as HTMLCollectionOf<HTMLElement>)
@@ -270,13 +306,8 @@ export class ButtonExtension
             
           });
           newColumn.append(fragment);
-          
-          // reorderedColumns.forEach(col => {
-          //   col.parentNode?.removeChild(col);
-          //   fragment.appendChild(col);
-          // });
-
         }
+        jpNotebook.appendChild(newColumn);
       }
       reindex();
 
@@ -404,6 +435,7 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
       // Get the index of the currently selected cell
       const index = panel.content.activeCellIndex;
       console.log(index)
+      console.log(panel)
       // Insert a new cell below the selected cell
       NotebookActions.insertBelow(panel.content);
   
@@ -421,7 +453,7 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
     moveColRight.innerHTML = '<i class = "fa fa-arrow-right"></i>';
     moveColRight.onclick =async function () {
       console.log("moveColRight btn clicked");
-      var reorderedColumns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      var reorderedColumns = Array.from(document.getElementsByClassName("jp-column") as HTMLCollectionOf<HTMLElement>)
       var moveColumnIndex = 0;
       for (var i = 0; i < reorderedColumns.length; i++){
         const stripNum = (reorderedColumns[i].id).match(/(\d+)/);
@@ -459,7 +491,7 @@ function createColumnToolbar(column: number, panel: NotebookPanel ) {
     moveColLeft.innerHTML = '<i class = "fa fa-arrow-left"></i>';
     moveColLeft.onclick = function () {
       console.log("moveColLeft btn clicked");
-      var reorderedColumns = Array.from(document.getElementsByClassName("column") as HTMLCollectionOf<HTMLElement>)
+      var reorderedColumns = Array.from(document.getElementsByClassName("jp-column") as HTMLCollectionOf<HTMLElement>)
       var moveColumnIndex = 0;
       for (var i = 0; i < reorderedColumns.length; i++){
         const stripNum = (reorderedColumns[i].id).match(/(\d+)/);
@@ -508,11 +540,11 @@ function selectColumn(this: any){
     console.log(ele.toString())
     var colIndex = ele.id.replace('click', '');
     console.log("selected column " + colIndex)
-    var previousSelection = document.querySelector(".column.selected");
+    var previousSelection = document.querySelector(".jp-column.selected");
     var column = document.getElementById("column" + colIndex);
   
     if(previousSelection != null && previousSelection != column){
-      var previousSelection = document.querySelector(".column.selected"); 
+      var previousSelection = document.querySelector(".jp-column.selected"); 
       if(previousSelection) {
         (previousSelection as HTMLElement).style.border = "";
         previousSelection.classList.remove('selected');
@@ -540,7 +572,7 @@ function update_styling(notebookTracker: INotebookTracker) {
     console.log("Running update_styling()");
     console.log(notebookTracker);
     // Get the existing number of columns, and if there are none then set to 1 column
-    var columns: HTMLCollectionOf<Element> = document.getElementsByClassName("column");
+    var columns: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-column");
     var nCols = columns.length;
     if(nCols == 0) {
       nCols = 2; // default to at least 2
@@ -564,7 +596,7 @@ function update_styling(notebookTracker: INotebookTracker) {
         var new_columns = [];
         for(var c = 0; c < nCols; c++){
           new_columns[c] = document.createElement('div');   
-          new_columns[c].classList.add("column");
+          new_columns[c].classList.add("jp-column");
           new_columns[c].id = "column" + (c+1).toString();
           new_columns[c].style.width = "500px";
           // colWidths[c] = newColumnWidth.toString() + "%";
@@ -584,7 +616,7 @@ function update_styling(notebookTracker: INotebookTracker) {
           new_columns[c].prepend(toolbar);
         }
       }
-      var columns: HTMLCollectionOf<Element> = document.getElementsByClassName("column");
+      var columns: HTMLCollectionOf<Element> = document.getElementsByClassName("jp-column");
       // Assume there are columns now
       // For now, assume one column, and we are completing initial page setup
       var jp_cells = (notebook[0] as HTMLElement).getElementsByClassName("jp-Cell");
